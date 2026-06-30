@@ -2,38 +2,36 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CatCode</title>
+<title>CatCode Interactive AI</title>
 <style>
 body{margin:0;background:#111;color:white;font-family:Arial;padding:15px}
-h1{color:#6cff8d;font-size:42px}
-textarea{width:100%;height:330px;background:#000;color:#6cff8d;font-size:18px;padding:15px;border:2px solid #333;box-sizing:border-box}
-button{padding:14px 22px;font-size:18px;border:0;border-radius:10px;margin:10px 5px 10px 0}
-.box{background:#000;color:#00ff66;border:2px solid #333;padding:15px;min-height:130px;white-space:pre-wrap;font-size:18px}
+h1{color:#6cff8d;font-size:40px}
+textarea{width:100%;height:300px;background:#000;color:#6cff8d;font-size:17px;padding:12px;border:2px solid #333;box-sizing:border-box}
+button{padding:13px 18px;font-size:17px;border:0;border-radius:10px;margin:8px 4px}
+.box{background:#000;color:#00ff66;border:2px solid #333;padding:15px;min-height:120px;white-space:pre-wrap;font-size:17px}
 #page{background:white;color:black;white-space:normal}
+#chatBox{display:flex;gap:8px;margin-top:10px}
+#chatInput{flex:1;padding:12px;font-size:17px;border-radius:8px;border:0}
 </style>
 </head>
 <body>
 
-<h1>CatCode</h1>
+<h1>CatCode Interactive AI</h1>
 
 <textarea id="code">make ai CatBrain
 
 learn "AI means artificial intelligence."
-learn "CatCode can make websites."
+learn "CatCode is a coding language that can make websites and simple AI."
+learn "HTML is used to build websites."
+learn "Python is used for apps, games, automation, and AI."
 learn "Firestar is a brave warrior cat."
 
-ask "What is AI?"
-ask "What is CatCode?"
-ask "Who is Firestar?"
+say "CatBrain is ready."
+say "Use the chat box below to talk to the AI."
 
-say "Now making a page..."
-
-page title "My CatCode Website"
-page text "This website was made with CatCode."
+page title "CatBrain AI"
+page text "This page was created with CatCode."
 page button "Click Me"
-
-x = "hello"
-print(x)
 
 power = 1
 
@@ -45,11 +43,18 @@ if power > 10:
   say "CatBrain is getting smarter!"</textarea>
 
 <br>
-<button onclick="runCode()">Run</button>
+<button onclick="runCode()">Run CatCode</button>
 <button onclick="clearAll()">Clear</button>
 
 <h2>Console</h2>
 <div id="output" class="box"></div>
+
+<h2>Talk to the AI</h2>
+<div id="chat" class="box"></div>
+<div id="chatBox">
+<input id="chatInput" placeholder="Ask the AI something...">
+<button onclick="chatAsk()">Ask</button>
+</div>
 
 <h2>Page Preview</h2>
 <div id="page" class="box"></div>
@@ -57,20 +62,25 @@ if power > 10:
 <script>
 let aiName = "CatAI";
 let aiMemory = [];
+let vars = {};
 
 function clearAll(){
   document.getElementById("output").textContent = "";
+  document.getElementById("chat").textContent = "";
   document.getElementById("page").innerHTML = "";
+  aiMemory = [];
+  vars = {};
 }
 
 function runCode(){
   const lines = document.getElementById("code").value.split("\n");
   const out = document.getElementById("output");
   const page = document.getElementById("page");
-  const vars = {};
 
   out.textContent = "";
   page.innerHTML = "";
+  aiMemory = [];
+  vars = {};
 
   function say(text){
     out.textContent += text + "\n";
@@ -105,23 +115,41 @@ function runCode(){
 
   function answer(question){
     let q = question.toLowerCase();
+    let cleaned = q.replace(/what is|who is|what are|who are|tell me about|\?/g,"").trim();
     let best = "";
+    let bestScore = 0;
 
     for(let fact of aiMemory){
-      let f = fact.toLowerCase();
-      let words = q.replace(/what is|who is|what are|who are|\?/g,"").split(" ");
+      let score = 0;
+      let words = cleaned.split(" ");
 
       for(let word of words){
         word = word.trim();
-        if(word.length > 2 && f.includes(word)){
-          best = fact;
+        if(word.length > 2 && fact.toLowerCase().includes(word)){
+          score++;
         }
+      }
+
+      if(score > bestScore){
+        bestScore = score;
+        best = fact;
       }
     }
 
-    if(best) return aiName + ": " + best;
-    return aiName + ': I do not know yet. Teach me using learn "fact".';
+    if(bestScore > 0) return aiName + ": " + best;
+
+    if(q.includes("hello") || q.includes("hi")){
+      return aiName + ": Hello! Ask me something I learned.";
+    }
+
+    if(q.includes("your name")){
+      return aiName + ": My name is " + aiName + ".";
+    }
+
+    return aiName + ': I do not know yet. Add a line like: learn "Your fact here."';
   }
+
+  window.catAnswer = answer;
 
   function blockEnd(start){
     for(let i = start; i < lines.length; i++){
@@ -224,6 +252,28 @@ function runCode(){
 
   runBlock(0,lines.length);
 }
+
+function chatAsk(){
+  let input = document.getElementById("chatInput");
+  let chat = document.getElementById("chat");
+  let q = input.value.trim();
+
+  if(q === "") return;
+
+  chat.textContent += "You: " + q + "\n";
+
+  if(typeof window.catAnswer === "function"){
+    chat.textContent += window.catAnswer(q) + "\n\n";
+  } else {
+    chat.textContent += "CatAI: Press Run CatCode first.\n\n";
+  }
+
+  input.value = "";
+}
+
+document.getElementById("chatInput").addEventListener("keydown", function(e){
+  if(e.key === "Enter") chatAsk();
+});
 </script>
 
 </body>
