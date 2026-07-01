@@ -2,20 +2,20 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CatCode Ultimate Plus</title>
+<title>CatCode Ultimate Cat Edition</title>
 
 <style>
 body{
   margin:0;
   font-family:Arial,sans-serif;
-  background:#0b0b0b;
+  background:#111;
   color:white;
   text-align:center;
   padding:15px;
 }
 textarea{
   width:92%;
-  height:330px;
+  height:340px;
   background:#050505;
   color:#00ff99;
   border:3px solid #00ff99;
@@ -25,7 +25,7 @@ textarea{
 }
 button{
   margin:8px;
-  padding:14px 22px;
+  padding:13px 20px;
   font-size:17px;
   border:none;
   border-radius:12px;
@@ -41,6 +41,17 @@ button{
   padding:20px;
   min-height:250px;
 }
+.card{
+  border:2px solid black;
+  border-radius:15px;
+  padding:15px;
+  margin:10px;
+}
+input{
+  padding:10px;
+  border-radius:8px;
+  border:1px solid gray;
+}
 #exportBox{
   display:none;
   white-space:pre-wrap;
@@ -51,25 +62,14 @@ button{
   border-radius:12px;
   margin-top:15px;
 }
-input{
-  padding:10px;
-  border-radius:8px;
-  border:1px solid gray;
-}
-.card{
-  border:2px solid black;
-  border-radius:15px;
-  padding:15px;
-  margin:10px;
-}
 </style>
 </head>
 
 <body>
 
-<h1>🐱 CatCode Ultimate Plus</h1>
+<h1>🐱 CatCode Ultimate Cat Edition</h1>
 
-<textarea id="code">theme {
+<textarea id="code">fur {
 background "lightblue"
 color "black"
 font "Arial"
@@ -78,39 +78,35 @@ font "Arial"
 kitten name = "Firestar"
 kitten mood = "brave"
 
-page {
-title "My CatCode AI Website"
-heading "🐱 Welcome to CatCode Ultimate Plus"
-text "This website was made with CatCode."
+territory {
+title "My CatCode Website"
 
-card {
-heading name
-text "Firestar is brave."
+purr "Welcome to CatCode!"
+purr name
+
+furpic "https://placekitten.com/300/200"
+
+paw "Click Me" {
+purr "Meow! You clicked the button!"
 }
 
-image "https://placekitten.com/300/200"
-
-button "Say Meow" {
-purr "Meow!"
+zoomies 3 {
+purr "CatCode is awesome!"
 }
 
-repeat 3 {
-text "CatCode can build websites!"
+whiskers mood == "brave" {
+purr "The cat is brave!"
 }
 
-if mood == "brave" {
-text "The cat is brave!"
-}
-
-ai "FirestarBot" {
+lionbrain "FirestarBot" {
 learn "hello" -> "Hello! I am FirestarBot."
 learn "hi" -> "Hi there!"
 learn "cat" -> "Cats are awesome."
-learn "who are you" -> "I am a CatCode AI."
-learn "help" -> "Try asking hello, cat, or who are you."
-default "I do not know that yet. Teach me with learn."
+learn "who are you" -> "I am an AI made in CatCode."
+default "I do not know that yet."
 chat
 }
+
 }</textarea>
 
 <br>
@@ -148,8 +144,7 @@ function getText(line){
 }
 
 function add(html){
-  let preview = document.getElementById("preview");
-  preview.innerHTML += html;
+  document.getElementById("preview").innerHTML += html;
   exportedHTML += html + "\n";
 }
 
@@ -179,8 +174,8 @@ function runBlock(lines){
     let line = lines[i];
 
     if(
-      line === "page {" ||
-      line === "theme {" ||
+      line === "territory {" ||
+      line === "fur {" ||
       line === "}" ||
       line === "meow start" ||
       line === "meow end"
@@ -199,19 +194,15 @@ function runBlock(lines){
       document.title = getText(line);
     }
 
-    else if(line.startsWith("heading ")){
-      add("<h1>" + getText(line) + "</h1>");
-    }
-
-    else if(line.startsWith("text ")){
+    else if(line.startsWith("purr ")){
       add("<p>" + getText(line) + "</p>");
     }
 
-    else if(line.startsWith("image ")){
+    else if(line.startsWith("furpic ")){
       add('<img src="' + getText(line) + '" style="max-width:90%;border-radius:15px;"><br>');
     }
 
-    else if(line.startsWith("video ")){
+    else if(line.startsWith("catflix ")){
       add('<video controls style="max-width:90%;border-radius:15px;"><source src="' + getText(line) + '"></video><br>');
     }
 
@@ -227,20 +218,7 @@ function runBlock(lines){
       document.getElementById("preview").style.fontFamily = getText(line);
     }
 
-    else if(line.startsWith("card ")){
-      let inner = [];
-      i++;
-      while(i < lines.length && lines[i] !== "}"){
-        inner.push(lines[i]);
-        i++;
-      }
-
-      add('<div class="card">');
-      runBlock(inner);
-      add('</div>');
-    }
-
-    else if(line.startsWith("button ")){
+    else if(line.startsWith("paw ")){
       let label = getText(line);
       let message = "Meow!";
 
@@ -255,7 +233,7 @@ function runBlock(lines){
       add('<button onclick="alert(\'' + message.replaceAll("'","\\'") + '\')">' + label + '</button>');
     }
 
-    else if(line.startsWith("repeat ")){
+    else if(line.startsWith("zoomies ")){
       let times = parseInt(line.split(" ")[1]);
       let inner = [];
 
@@ -270,10 +248,9 @@ function runBlock(lines){
       }
     }
 
-    else if(line.startsWith("if ")){
-      let condition = line.replace("if ","").replace("{","").trim();
+    else if(line.startsWith("whiskers ")){
+      let condition = line.replace("whiskers ","").replace("{","").trim();
       let okay = false;
-
       let parts = condition.split("==");
 
       if(parts.length === 2){
@@ -295,7 +272,7 @@ function runBlock(lines){
       }
     }
 
-    else if(line.startsWith("ai ")){
+    else if(line.startsWith("lionbrain ")){
       let botName = getText(line);
       let brain = {};
       let defaultReply = "I do not know that yet.";
@@ -336,12 +313,8 @@ function runBlock(lines){
       }
     }
 
-    else if(line.startsWith("import ")){
-      add("<p>📁 Import works only if you paste extra CatCode into this box.</p>");
-    }
-
-    else if(line.startsWith("purr ")){
-      add("<p>" + getText(line) + "</p>");
+    else if(line.startsWith("adopt ")){
+      add("<p>📁 Adopt/import works if you paste another CatCode file into this box.</p>");
     }
 
     else{
