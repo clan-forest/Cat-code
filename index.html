@@ -2,147 +2,255 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CatCode Website Maker</title>
-
+<title>CatCode Ultimate</title>
 <style>
-body{
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:#111;
-  color:white;
-  text-align:center;
-  padding:20px;
-}
-textarea{
-  width:90%;
-  height:260px;
-  background:#222;
-  color:#00ff99;
-  border:3px solid #00ff99;
-  border-radius:15px;
-  padding:15px;
-  font-size:16px;
-}
-button{
-  margin:10px;
-  padding:15px 25px;
-  font-size:20px;
-  border:none;
-  border-radius:15px;
-  background:#00ff99;
-  color:black;
-  font-weight:bold;
-}
-#preview{
-  margin-top:20px;
-  background:white;
-  color:black;
-  border-radius:15px;
-  padding:20px;
-  min-height:250px;
-  text-align:center;
-}
+body{margin:0;font-family:Arial;background:#111;color:white;text-align:center;padding:15px}
+textarea{width:92%;height:310px;background:#050505;color:#00ff99;border:3px solid #00ff99;border-radius:15px;padding:15px;font-size:15px}
+button{margin:8px;padding:13px 20px;font-size:17px;border:none;border-radius:12px;background:#00ff99;color:black;font-weight:bold}
+#preview{margin-top:20px;background:white;color:black;border-radius:15px;padding:20px;min-height:250px}
+#exportBox{white-space:pre-wrap;text-align:left;background:#000;color:#00ff99;padding:15px;border-radius:12px;margin-top:15px;display:none}
+input{padding:10px;border-radius:8px;border:1px solid #888;margin:5px}
 </style>
 </head>
-
 <body>
 
-<h1>🐱 CatCode Website Maker</h1>
+<h1>🐱 CatCode Ultimate</h1>
 
-<textarea id="code">page {
-title "My Cat Site"
-heading "Welcome"
-text "This website was made with CatCode!"
-image "https://placekitten.com/300/200"
-button "Click Me" {
-purr "Button pressed!"
-}
+<textarea id="code">theme {
 background "lightblue"
 color "black"
+font "Arial"
+}
+
+kitten name = "Firestar"
+
+page {
+title "My CatCode Site"
+heading name
+text "This was made with CatCode!"
+image "https://placekitten.com/300/200"
+video "https://www.w3schools.com/html/mov_bbb.mp4"
+
+button "Say Meow" {
+purr "Meow!"
+}
+
+repeat 3 {
+text "CatCode is awesome!"
+}
+
+if name == "Firestar" {
+text "Welcome, Firestar!"
+}
+
+ai "FirestarBot" {
+learn "hello" -> "Hello! I am your CatCode AI."
+learn "cat" -> "Cats are awesome."
+learn "who are you" -> "I am an AI made in CatCode."
+default "I do not know that yet."
+chat
+}
 }</textarea>
 
 <br>
-
 <button onclick="runCatCode()">Run CatCode</button>
+<button onclick="exportCode()">Export HTML/CSS/JS</button>
 
 <div id="preview"></div>
+<div id="exportBox"></div>
 
 <script>
-function runCatCode(){
-  const code = document.getElementById("code").value;
-  const preview = document.getElementById("preview");
-
-  preview.innerHTML = "";
-  preview.style.background = "white";
-  preview.style.color = "black";
-
-  let lines = code.split("\n").map(l => l.trim()).filter(l => l !== "");
-
-  for(let i = 0; i < lines.length; i++){
-    let line = lines[i];
-
-    if(line === "page {" || line === "}" || line === "meow start" || line === "meow end"){
-      continue;
-    }
-
-    if(line.startsWith("title ")){
-      let text = getText(line);
-      document.title = text;
-    }
-
-    else if(line.startsWith("heading ")){
-      let text = getText(line);
-      preview.innerHTML += `<h1>${text}</h1>`;
-    }
-
-    else if(line.startsWith("text ")){
-      let text = getText(line);
-      preview.innerHTML += `<p>${text}</p>`;
-    }
-
-    else if(line.startsWith("image ")){
-      let src = getText(line);
-      preview.innerHTML += `<img src="${src}" style="max-width:90%;border-radius:15px;">`;
-    }
-
-    else if(line.startsWith("background ")){
-      let color = getText(line);
-      preview.style.background = color;
-    }
-
-    else if(line.startsWith("color ")){
-      let color = getText(line);
-      preview.style.color = color;
-    }
-
-    else if(line.startsWith("button ")){
-      let label = getText(line);
-      let message = "Meow!";
-
-      i++;
-      while(i < lines.length && lines[i] !== "}"){
-        if(lines[i].startsWith("purr ")){
-          message = getText(lines[i]);
-        }
-        i++;
-      }
-
-      preview.innerHTML += `<br><button onclick="alert('${message}')">${label}</button>`;
-    }
-
-    else{
-      preview.innerHTML += `<p style="color:red;">Unknown CatCode: ${line}</p>`;
-    }
-  }
-}
+let variables = {};
+let exportedHTML = "";
 
 function getText(line){
-  let first = line.indexOf('"');
-  let last = line.lastIndexOf('"');
-  if(first !== -1 && last !== -1 && last > first){
-    return line.substring(first + 1, last);
+  let first=line.indexOf('"');
+  let last=line.lastIndexOf('"');
+  if(first!==-1 && last!==-1 && last>first) return line.substring(first+1,last);
+  let value=line.split(" ").slice(1).join(" ").trim();
+  return variables[value] ?? value;
+}
+
+function add(html){
+  document.getElementById("preview").innerHTML += html;
+  exportedHTML += html + "\n";
+}
+
+function runCatCode(){
+  variables = {};
+  exportedHTML = "";
+  let preview=document.getElementById("preview");
+  preview.innerHTML="";
+  preview.style.background="white";
+  preview.style.color="black";
+  preview.style.fontFamily="Arial";
+
+  let lines=document.getElementById("code").value.split("\n").map(x=>x.trim()).filter(x=>x);
+
+  function runBlock(block){
+    for(let i=0;i<block.length;i++){
+      let line=block[i];
+
+      if(line==="page {" || line==="theme {" || line==="}" || line==="meow start" || line==="meow end") continue;
+
+      if(line.startsWith("import ")){
+        add("<p>📁 Import note: browser HTML cannot load local CatCode files unless you paste them in.</p>");
+      }
+
+      else if(line.startsWith("kitten ")){
+        let parts=line.replace("kitten ","").split("=");
+        variables[parts[0].trim()] = parts[1].trim().replaceAll('"',"");
+      }
+
+      else if(line.startsWith("title ")){
+        document.title=getText(line);
+      }
+
+      else if(line.startsWith("heading ")){
+        add("<h1>"+getText(line)+"</h1>");
+      }
+
+      else if(line.startsWith("text ")){
+        add("<p>"+getText(line)+"</p>");
+      }
+
+      else if(line.startsWith("image ")){
+        add('<img src="'+getText(line)+'" style="max-width:90%;border-radius:15px;"><br>');
+      }
+
+      else if(line.startsWith("video ")){
+        add('<video controls style="max-width:90%;border-radius:15px;"><source src="'+getText(line)+'"></video><br>');
+      }
+
+      else if(line.startsWith("background ")){
+        preview.style.background=getText(line);
+      }
+
+      else if(line.startsWith("color ")){
+        preview.style.color=getText(line);
+      }
+
+      else if(line.startsWith("font ")){
+        preview.style.fontFamily=getText(line);
+      }
+
+      else if(line.startsWith("button ")){
+        let label=getText(line);
+        let message="Meow!";
+        i++;
+        while(i<block.length && block[i]!=="}"){
+          if(block[i].startsWith("purr ")) message=getText(block[i]);
+          i++;
+        }
+        add('<button onclick="alert(\''+message.replaceAll("'","\\'")+'\')">'+label+'</button>');
+      }
+
+      else if(line.startsWith("repeat ")){
+        let times=parseInt(line.split(" ")[1]);
+        let inner=[];
+        i++;
+        while(i<block.length && block[i]!=="}"){
+          inner.push(block[i]);
+          i++;
+        }
+        for(let r=0;r<times;r++) runBlock(inner);
+      }
+
+      else if(line.startsWith("if ")){
+        let condition=line.replace("if ","").replace("{","").trim();
+        let okay=false;
+        let parts=condition.split("==");
+        if(parts.length===2){
+          let left=parts[0].trim();
+          let right=parts[1].trim().replaceAll('"',"");
+          okay=(variables[left]==right);
+        }
+
+        let inner=[];
+        i++;
+        while(i<block.length && block[i]!=="}"){
+          inner.push(block[i]);
+          i++;
+        }
+        if(okay) runBlock(inner);
+      }
+
+      else if(line.startsWith("ai ")){
+        let botName=getText(line);
+        let brain={};
+        let defaultReply="I do not know that yet.";
+        i++;
+
+        while(i<block.length && block[i]!=="}"){
+          let aiLine=block[i];
+
+          if(aiLine.startsWith("learn ")){
+            let match=aiLine.match(/learn\s+"(.*?)"\s*->\s*"(.*?)"/);
+            if(match) brain[match[1].toLowerCase()]=match[2];
+          }
+
+          else if(aiLine.startsWith("default ")){
+            defaultReply=getText(aiLine);
+          }
+
+          else if(aiLine==="chat"){
+            let id="chat_"+Math.floor(Math.random()*999999);
+            add(`
+              <div style="border:2px solid black;padding:15px;border-radius:15px;margin-top:15px;">
+                <h2>🤖 ${botName}</h2>
+                <input id="${id}_input" placeholder="Ask the AI...">
+                <button onclick="catChat('${id}')">Send</button>
+                <div id="${id}_out"></div>
+              </div>
+            `);
+            window[id+"_brain"]=brain;
+            window[id+"_default"]=defaultReply;
+          }
+          i++;
+        }
+      }
+
+      else if(line.startsWith("purr ")){
+        add("<p>"+getText(line)+"</p>");
+      }
+
+      else{
+        add('<p style="color:red;">Unknown CatCode: '+line+'</p>');
+      }
+    }
   }
-  return "";
+
+  runBlock(lines);
+}
+
+function catChat(id){
+  let input=document.getElementById(id+"_input").value.toLowerCase();
+  let out=document.getElementById(id+"_out");
+  let brain=window[id+"_brain"];
+  let reply=brain[input] || window[id+"_default"];
+  out.innerHTML += "<p><b>You:</b> "+input+"</p>";
+  out.innerHTML += "<p><b>AI:</b> "+reply+"</p>";
+}
+
+function exportCode(){
+  let box=document.getElementById("exportBox");
+  box.style.display="block";
+  box.textContent =
+`<!DOCTYPE html>
+<html>
+<head>
+<title>${document.title}</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body{font-family:Arial;text-align:center;padding:20px}
+button{padding:12px 18px;border-radius:10px}
+img,video{max-width:90%;border-radius:15px}
+</style>
+</head>
+<body>
+${exportedHTML}
+</body>
+</html>`;
 }
 </script>
 
