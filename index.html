@@ -1,147 +1,150 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>CatCode Runner</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CatCode Website Maker</title>
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #111;
-      color: white;
-      text-align: center;
-      padding: 20px;
-    }
-
-    textarea {
-      width: 90%;
-      height: 220px;
-      background: #222;
-      color: #00ff99;
-      border: 2px solid #00ff99;
-      border-radius: 10px;
-      padding: 12px;
-      font-size: 16px;
-    }
-
-    button {
-      margin: 10px;
-      padding: 12px 20px;
-      font-size: 18px;
-      border: none;
-      border-radius: 10px;
-      background: #00ff99;
-      color: black;
-      font-weight: bold;
-    }
-
-    #output {
-      margin-top: 20px;
-      background: black;
-      color: #00ff99;
-      padding: 15px;
-      border-radius: 10px;
-      min-height: 120px;
-      text-align: left;
-      white-space: pre-wrap;
-    }
-  </style>
+<style>
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#111;
+  color:white;
+  text-align:center;
+  padding:20px;
+}
+textarea{
+  width:90%;
+  height:260px;
+  background:#222;
+  color:#00ff99;
+  border:3px solid #00ff99;
+  border-radius:15px;
+  padding:15px;
+  font-size:16px;
+}
+button{
+  margin:10px;
+  padding:15px 25px;
+  font-size:20px;
+  border:none;
+  border-radius:15px;
+  background:#00ff99;
+  color:black;
+  font-weight:bold;
+}
+#preview{
+  margin-top:20px;
+  background:white;
+  color:black;
+  border-radius:15px;
+  padding:20px;
+  min-height:250px;
+  text-align:center;
+}
+</style>
 </head>
 
 <body>
 
-  <h1>🐱 CatCode Runner</h1>
+<h1>🐱 CatCode Website Maker</h1>
 
-  <textarea id="code">meow start
-purr "Hello from CatCode!"
-kitten name = "Firestar"
-purr name
-repeat 3 {
-purr "Meow!"
+<textarea id="code">page {
+title "My Cat Site"
+heading "Welcome"
+text "This website was made with CatCode!"
+image "https://placekitten.com/300/200"
+button "Click Me" {
+purr "Button pressed!"
 }
-meow end</textarea>
+background "lightblue"
+color "black"
+}</textarea>
 
-  <br>
+<br>
 
-  <button onclick="runCatCode()">Run CatCode</button>
+<button onclick="runCatCode()">Run CatCode</button>
 
-  <div id="output"></div>
+<div id="preview"></div>
 
-  <script>
-    function runCatCode() {
-      const code = document.getElementById("code").value;
-      const output = document.getElementById("output");
-      output.textContent = "";
+<script>
+function runCatCode(){
+  const code = document.getElementById("code").value;
+  const preview = document.getElementById("preview");
 
-      let variables = {};
-      let lines = code.split("\n").map(line => line.trim()).filter(line => line !== "");
+  preview.innerHTML = "";
+  preview.style.background = "white";
+  preview.style.color = "black";
 
-      function print(text) {
-        output.textContent += text + "\n";
-      }
+  let lines = code.split("\n").map(l => l.trim()).filter(l => l !== "");
 
-      function getValue(value) {
-        value = value.trim();
+  for(let i = 0; i < lines.length; i++){
+    let line = lines[i];
 
-        if (value.startsWith('"') && value.endsWith('"')) {
-          return value.slice(1, -1);
-        }
-
-        if (variables[value] !== undefined) {
-          return variables[value];
-        }
-
-        return value;
-      }
-
-      for (let i = 0; i < lines.length; i++) {
-        let line = lines[i];
-
-        if (line === "meow start" || line === "meow end") {
-          continue;
-        }
-
-        if (line.startsWith("purr ")) {
-          let value = line.replace("purr ", "");
-          print(getValue(value));
-        }
-
-        else if (line.startsWith("kitten ")) {
-          let parts = line.replace("kitten ", "").split("=");
-          let name = parts[0].trim();
-          let value = getValue(parts[1]);
-          variables[name] = value;
-        }
-
-        else if (line.startsWith("repeat ")) {
-          let times = parseInt(line.split(" ")[1]);
-          let block = [];
-
-          i++;
-
-          while (i < lines.length && lines[i] !== "}") {
-            if (lines[i] !== "{") {
-              block.push(lines[i]);
-            }
-            i++;
-          }
-
-          for (let r = 0; r < times; r++) {
-            for (let b of block) {
-              if (b.startsWith("purr ")) {
-                let value = b.replace("purr ", "");
-                print(getValue(value));
-              }
-            }
-          }
-        }
-
-        else {
-          print("Error: Unknown CatCode command: " + line);
-        }
-      }
+    if(line === "page {" || line === "}" || line === "meow start" || line === "meow end"){
+      continue;
     }
-  </script>
+
+    if(line.startsWith("title ")){
+      let text = getText(line);
+      document.title = text;
+    }
+
+    else if(line.startsWith("heading ")){
+      let text = getText(line);
+      preview.innerHTML += `<h1>${text}</h1>`;
+    }
+
+    else if(line.startsWith("text ")){
+      let text = getText(line);
+      preview.innerHTML += `<p>${text}</p>`;
+    }
+
+    else if(line.startsWith("image ")){
+      let src = getText(line);
+      preview.innerHTML += `<img src="${src}" style="max-width:90%;border-radius:15px;">`;
+    }
+
+    else if(line.startsWith("background ")){
+      let color = getText(line);
+      preview.style.background = color;
+    }
+
+    else if(line.startsWith("color ")){
+      let color = getText(line);
+      preview.style.color = color;
+    }
+
+    else if(line.startsWith("button ")){
+      let label = getText(line);
+      let message = "Meow!";
+
+      i++;
+      while(i < lines.length && lines[i] !== "}"){
+        if(lines[i].startsWith("purr ")){
+          message = getText(lines[i]);
+        }
+        i++;
+      }
+
+      preview.innerHTML += `<br><button onclick="alert('${message}')">${label}</button>`;
+    }
+
+    else{
+      preview.innerHTML += `<p style="color:red;">Unknown CatCode: ${line}</p>`;
+    }
+  }
+}
+
+function getText(line){
+  let first = line.indexOf('"');
+  let last = line.lastIndexOf('"');
+  if(first !== -1 && last !== -1 && last > first){
+    return line.substring(first + 1, last);
+  }
+  return "";
+}
+</script>
 
 </body>
 </html>
